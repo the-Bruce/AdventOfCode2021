@@ -51,7 +51,7 @@ type Input = [Binary]
 
 type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
@@ -65,4 +65,14 @@ partA inp = binToDec (map epsilon val) * binToDec (map gamma val)
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB inp = binToDec (recFilterPredicate mostCommon 0 inp) * binToDec (recFilterPredicate leastCommon 0 inp)
+  where
+    recFilterPredicate :: (Int -> Int -> Int) -> Int -> [Binary] -> Binary
+    recFilterPredicate _ _ [x] = x
+    recFilterPredicate pred' pos lst = recFilterPredicate pred' (pos+1) $ filterRowPredicate (pred' $ length lst) pos lst
+    filterRowPredicate pred' pos lst = filterRows (pred' (val lst !! pos)) pos lst
+    val lst = map sum $ transpose lst
+    mostCommon len x = if x>=((len+1) `div` 2) then 1 else 0
+    leastCommon len x = if x<((len+1) `div` 2) then 1 else 0
+    filterRows :: Int -> Int -> [Binary] -> [Binary]
+    filterRows needle pos lst = filter ((== needle) . (!! pos)) lst
